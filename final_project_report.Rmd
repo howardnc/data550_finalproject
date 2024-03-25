@@ -1,0 +1,148 @@
+---
+title: "DATA 550 Final Project Report"
+author: "Nicholas Howard"
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r, data-load,include = FALSE}
+here::i_am("final_project_report.Rmd")
+load(file = here::here("data_files/Pilcog Final Over 45.RData"))
+dat <- pilcog_45plus
+
+library(tidyverse)
+library(gtsummary)
+library(icenReg)
+library(survival)
+library(survminer)
+library(ggplot2)
+library(gt)
+library(gtExtras)
+library(knitr)
+library(meta)
+library(labelled)
+```
+
+# Introduction
+
+In this report, we obtained data on a population-based cohort of diverse participants recruited by the Health and Retirement Study from 2006 to 2020. We investigated to see if purpose in life -- a psychological construct referring to one's tendency to derive purpose and meaning in life -- is associated with a protective effect against Alzheimer's dementia in individuals as early as their 50's and 60's. 
+
+The data contains information about purpose in life scores at baseline (i.e. start of the study) along with their average depression score over the study, age at baseline, cognitive status, sex, education, and ethnicity. 
+
+In order to look at the effects of purpose in life, we used extended Cox Proportional Hazards model stratified by ethnicity for time, in years, until onset of mild cognitive impairment or dementia. Purpose in life was categorized into tertiles to observe hazard differences between groups of more extreme purpose in life scores.
+
+
+# Summary Statistics
+
+
+This table is displaying the covariates we are interested in stratified by ethnicity for `r nrow(dat)` participants. Categorical covariates are given with count (n) and percentage (%) of the total population.
+
+<span style="font-size:9px;">Note: Onset refers to those who developed onset of cognitive impairment during the study period.</span>
+
+
+```{r, table-one,echo = FALSE}
+table1_t <- readRDS(file = here::here("output/table1.rds"))
+
+
+# creating table 1 as GT table
+tableone <- gt(table1_t) %>%
+  tab_header(
+    title = "Summary Statistics"
+  ) %>%
+  cols_label(
+    Covariate = "",
+    Black = "Black",
+    White = "White",
+    Hispanic = "Hispanic",
+    Other = "Other",
+    Total = "Total"
+  )
+
+tableone <- 
+  tableone %>% 
+  tab_row_group(
+    label = "Mean / Median / Range",
+    rows = 1:4
+  ) %>%
+  tab_row_group(
+    label = "N (%)",
+    rows = 5:10
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "lightblue1"),
+    locations = cells_row_groups(groups = 1)
+  ) |>
+  tab_style(
+    style = cell_fill(color = "lightblue1"),
+    locations = cells_row_groups(groups = 2)
+  ) %>%
+  tab_options(
+    table.font.size = pct(75) 
+  )
+
+tableone
+```
+
+
+
+# Analysis Results Table
+
+
+This table shows the results from our ethnicity-stratified Cox model. We see that those with purpose in life scores in the upper tertile (>66%) had significantly reduced hazard (HR = 0.73) in comparison to those in the lower tertile (<33%) even after adjusting for depression and typical demographic confounders. 
+
+
+```{r, results, echo = FALSE}
+tertiles <- readRDS(file = here::here("data_files/tertiles_dat.RDS"))
+
+cox.thirds <- readRDS(file = here::here("output/cox_model.rds"))
+
+surv3 <- readRDS(file = here::here("output/surv3.rds"))
+
+striped_theme <-
+  list(
+    "as_gt-lst:addl_cmds" = list(
+      tab_spanner = rlang::expr(gt::tab_options(table.font.size = 'small')),
+      user_added1 = rlang::expr(gt::opt_row_striping()),
+      user_added2 = rlang::expr(gt::opt_table_lines("none"))
+    )
+  )
+
+reset_gtsummary_theme()
+set_gtsummary_theme(striped_theme)
+
+# build results table
+tbl_cox <- cox.thirds %>% tbl_regression(
+    exponentiate = TRUE,
+    label = list(
+      pil_thirds ~ "Purpose in Life",
+      Age_bl ~ "Baseline Age",
+      depavg ~ "Depression",
+      Sex_Final ~ "Sex",
+      education ~ "Education"
+    )
+  ) %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels()
+
+
+tbl_cox
+```
+
+
+
+# Cumulative Hazard Plot
+
+
+This plot shows the cumulative hazard difference between Upper and Lower Tertile purpose in life groups over our study period. We see that, over time, the upper tertile group has lower accumulated hazard of developing cognitive impairment.
+
+```{r, figure, echo = FALSE}
+load(file = here::here("output/cumhazplot.RData"))
+
+thirds_cumhaz_plot
+```
+
