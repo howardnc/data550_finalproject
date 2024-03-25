@@ -2,11 +2,13 @@
 
 > Looking at effects of purpose in life on 
   risk of cognitive impairment on Health and Retirement Study participants
-  using Cox Proportional Hazards model
+  using Cox Proportional Hazards model. This will build a report providing
+  summary statistics, Cox regression results, and a cumulative hazard plot
+  between lower and upper tertiles of Purpose in Life scores.
 
 ------------------------------------------------------------------------
 
-## Initial code description
+## Code Description
 
 `code/build_table1.R`
 
@@ -18,7 +20,7 @@
 
 `code/build_cumhazplot.R`
 
-  - builds a ggsurvplot object visualizing cumualative hazard from `code/run_analysis.R`
+  - builds a ggsurvplot object visualizing cumulative hazard from `code/run_analysis.R`
   
 `code/render_report.R`
 
@@ -32,3 +34,6 @@
 
 ------------------------------------------------------------------------
 
+### Report Build:
+
+  - run 'make final_project_report.html' in terminal to build the report
