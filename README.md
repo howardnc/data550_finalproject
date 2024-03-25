@@ -19,6 +19,10 @@
 `code/build_cumhazplot.R`
 
   - builds a ggsurvplot object visualizing cumualative hazard from `code/run_analysis.R`
+  
+`code/render_report.R`
+
+  - creates the HTML report from 'final_project_report.Rmd'
 
 `Makefile`
 
