@@ -36,4 +36,6 @@
 
 ### Report Build:
 
+  - run 'make install' to get relevant packages through 'renv::restore()' for the report build
+
   - run 'make final_project_report.html' in terminal to build the report
