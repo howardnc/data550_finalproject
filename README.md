@@ -28,14 +28,26 @@
 
 `Makefile`
 
-  - contains rules for building the report
+  - contains rules for building the report, docker image, and running the docker image
   - `make .reportbuild` will generate the objects for compiling the report
   - it will also create an empty file called `.reportbuild` in the project root directory, so that `make` properly knows when to update outputs
+  - `project_image` rule will take Renv files and directory files needed to build Docker image
+  - `pull_image` dependency rule for `da_dockerhub_report` using Dockerhub image
+  - `da_dockerhub_report` builds the report using Dockerhub image
+  - `da_local_report` builds the report using locally built Docker image
+  
+`Dockerfile`
+
+  - contains container structure and commands to run report building in the container
 
 ------------------------------------------------------------------------
 
-### Report Build:
+### Build Report Locally:
 
-  - run 'make install' to get relevant packages through 'renv::restore()' for the report build
+  - run `make project_image` to build the local Docker image (may take some time).
+  - run `make da_local_report` to build the report which will output to /report folder.
 
-  - run 'make final_project_report.html' in terminal to build the report
+### Build Report with Dockerhub Image:
+
+  - run `make da_dockerhub_report` to pull Dockerhub image and being report-building.
+  - Built report will appear in report/ folder.
